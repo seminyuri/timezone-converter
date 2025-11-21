@@ -575,6 +575,11 @@
         }
 
         /* Dropdown для поиска городов */
+        /* Карточка с поиском должна быть выше других карточек */
+        .card:has(#citySearch) {
+            z-index: 10;
+        }
+
         .city-dropdown {
             position: absolute;
             top: 100%;
