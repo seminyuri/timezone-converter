@@ -1,0 +1,1736 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>✨ Конвертер часовых поясов - Космоэнергетика</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Quicksand:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/luxon@3.4.4/build/global/luxon.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            /* Магические градиенты */
+            --cosmic-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+            --aurora-gradient: linear-gradient(135deg, #a8edea 0%, #fed6e3 50%, #c9ffbf 100%);
+            --mystic-gradient: linear-gradient(135deg, #d299c2 0%, #fef9d7 50%, #89f7fe 100%);
+            --divine-gradient: linear-gradient(135deg, #e0c3fc 0%, #8ec5fc 100%);
+            --celestial-gradient: linear-gradient(135deg, #f093fb 0%, #f5576c 50%, #ffd140 100%);
+
+            /* Светлая тема - небесная */
+            --bg-light: linear-gradient(180deg, #ffecd2 0%, #fcb69f 50%, #ffeaa7 100%);
+            --card-light: rgba(255, 255, 255, 0.95);
+            --text-light: #2d3436;
+            --shadow-light: rgba(253, 121, 168, 0.3);
+
+            /* Темная тема - космическая */
+            --bg-dark: linear-gradient(180deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
+            --card-dark: rgba(30, 30, 60, 0.9);
+            --text-dark: #f5f6fa;
+            --shadow-dark: rgba(167, 139, 250, 0.4);
+        }
+
+        body {
+            font-family: 'Quicksand', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            opacity: 0.8;
+        }
+
+        body.light-theme {
+            color: var(--text-light);
+        }
+
+        body.light-theme::before {
+            background: var(--bg-light);
+            animation: shimmerLight 15s ease-in-out infinite;
+        }
+
+        body.dark-theme {
+            color: var(--text-dark);
+        }
+
+        body.dark-theme::before {
+            background: var(--bg-dark);
+            animation: shimmerDark 15s ease-in-out infinite;
+        }
+
+        /* Звезды для темной темы */
+        body.dark-theme::after {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image:
+                radial-gradient(2px 2px at 20px 30px, white, transparent),
+                radial-gradient(2px 2px at 60px 70px, white, transparent),
+                radial-gradient(1px 1px at 50px 50px, white, transparent),
+                radial-gradient(1px 1px at 130px 80px, white, transparent),
+                radial-gradient(2px 2px at 90px 10px, white, transparent);
+            background-size: 200px 200px;
+            animation: twinkle 3s ease-in-out infinite;
+            z-index: -1;
+            opacity: 0.6;
+        }
+
+        /* Магические частицы для светлой темы */
+        body.light-theme::after {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image:
+                radial-gradient(circle, rgba(255, 215, 0, 0.3) 1px, transparent 1px),
+                radial-gradient(circle, rgba(255, 192, 203, 0.3) 1px, transparent 1px);
+            background-size: 150px 150px;
+            background-position: 0 0, 75px 75px;
+            animation: float 20s linear infinite;
+            z-index: -1;
+            opacity: 0.4;
+        }
+
+        .container {
+            max-width: 600px;
+            width: 100%;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            position: relative;
+        }
+
+        .header h1 {
+            font-family: 'Cinzel', serif;
+            font-size: 2.5rem;
+            font-weight: 700;
+            background: var(--cosmic-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 15px;
+            animation: fadeInDown 0.8s ease, glow 3s ease-in-out infinite;
+            text-shadow: 0 0 20px rgba(167, 139, 250, 0.5);
+            letter-spacing: 2px;
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            font-weight: 300;
+            opacity: 0.85;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            font-size: 0.85rem;
+            animation: fadeInDown 0.8s ease 0.2s both;
+        }
+
+        .header p::before,
+        .header p::after {
+            content: '✦';
+            margin: 0 15px;
+            opacity: 0.6;
+        }
+
+        .theme-toggle {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: var(--cosmic-gradient);
+            border: none;
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            box-shadow: 0 8px 32px rgba(167, 139, 250, 0.6),
+                        inset 0 0 20px rgba(255, 255, 255, 0.2);
+            transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            overflow: hidden;
+            z-index: 999;
+        }
+
+        .theme-toggle::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.3) 0%, transparent 70%);
+            animation: rotateGlow 4s linear infinite;
+        }
+
+        .theme-toggle:hover {
+            transform: scale(1.15) rotate(180deg);
+            box-shadow: 0 12px 48px rgba(167, 139, 250, 0.8),
+                        inset 0 0 30px rgba(255, 255, 255, 0.3);
+        }
+
+        .theme-toggle:active {
+            transform: scale(1.05) rotate(180deg);
+        }
+
+        .card {
+            border-radius: 30px;
+            padding: 40px;
+            margin-bottom: 30px;
+            transition: all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            animation: fadeInUp 0.8s ease;
+            position: relative;
+            overflow: hidden;
+            backdrop-filter: blur(20px);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            background: var(--aurora-gradient);
+            border-radius: 30px;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+            z-index: -1;
+        }
+
+        /* Пульсация только для светлой темы */
+        .light-theme .card::before {
+            animation: borderGlow 5s linear infinite;
+        }
+
+        .light-theme .card:hover::before {
+            opacity: 0.6;
+        }
+
+        /* Для тёмной темы - статичный эффект */
+        .dark-theme .card::before {
+            animation: none;
+        }
+
+        .dark-theme .card:hover::before {
+            opacity: 0.3;
+        }
+
+        .light-theme .card {
+            background: var(--card-light);
+            box-shadow: 0 15px 60px var(--shadow-light),
+                        inset 0 0 30px rgba(255, 255, 255, 0.5);
+        }
+
+        .dark-theme .card {
+            background: var(--card-dark);
+            box-shadow: 0 15px 60px var(--shadow-dark),
+                        inset 0 0 30px rgba(167, 139, 250, 0.05);
+            border: 2px solid rgba(167, 139, 250, 0.2);
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+            position: relative;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 12px;
+            font-weight: 600;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            opacity: 0.9;
+            position: relative;
+            display: inline-block;
+        }
+
+        .form-group label::after {
+            content: '✧';
+            margin-left: 8px;
+            opacity: 0.5;
+            animation: sparkle 2s ease-in-out infinite;
+        }
+
+        .input-wrapper {
+            position: relative;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 16px 20px;
+            border: 2px solid transparent;
+            border-radius: 15px;
+            font-size: 1.05rem;
+            font-family: 'Quicksand', sans-serif;
+            font-weight: 500;
+            transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            position: relative;
+        }
+
+        .light-theme input,
+        .light-theme select {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.8) 0%, rgba(240, 147, 251, 0.1) 100%);
+            color: var(--text-light);
+            box-shadow: 0 4px 15px rgba(253, 121, 168, 0.15),
+                        inset 0 0 10px rgba(255, 255, 255, 0.5);
+        }
+
+        .dark-theme input,
+        .dark-theme select {
+            background: linear-gradient(135deg, rgba(48, 43, 99, 0.6) 0%, rgba(102, 126, 234, 0.2) 100%);
+            color: var(--text-dark);
+            box-shadow: 0 4px 15px rgba(167, 139, 250, 0.2),
+                        inset 0 0 10px rgba(167, 139, 250, 0.1);
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: #a78bfa;
+            transform: translateY(-3px) scale(1.02);
+            box-shadow: 0 8px 30px rgba(167, 139, 250, 0.5),
+                        inset 0 0 20px rgba(167, 139, 250, 0.2);
+        }
+
+        input:hover, select:hover {
+            transform: translateY(-2px);
+        }
+
+        .result-card {
+            background: var(--cosmic-gradient);
+            border-radius: 35px;
+            padding: 50px 40px;
+            text-align: center;
+            color: white;
+            box-shadow: 0 25px 80px rgba(167, 139, 250, 0.6),
+                        0 0 100px rgba(240, 147, 251, 0.3),
+                        inset 0 0 60px rgba(255, 255, 255, 0.1);
+            animation: fadeInUp 1s ease 0.3s both, cardPulse 6s ease-in-out infinite;
+            position: relative;
+            overflow: hidden;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .result-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.2) 0%, transparent 70%);
+            animation: spiralPulse 8s ease-in-out infinite;
+        }
+
+        .result-card::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background:
+                radial-gradient(circle at 20% 50%, rgba(255, 255, 255, 0.2) 0%, transparent 50%),
+                radial-gradient(circle at 80% 80%, rgba(240, 147, 251, 0.3) 0%, transparent 50%);
+            animation: floatBubbles 10s ease-in-out infinite;
+        }
+
+        .result-card > * {
+            position: relative;
+            z-index: 1;
+        }
+
+        .result-label {
+            font-size: 0.95rem;
+            opacity: 0.95;
+            margin-bottom: 15px;
+            text-transform: uppercase;
+            letter-spacing: 4px;
+            font-weight: 600;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.3);
+        }
+
+        .result-label::before,
+        .result-label::after {
+            content: '✦';
+            margin: 0 12px;
+            animation: sparkle 2s ease-in-out infinite;
+        }
+
+        .result-time {
+            font-family: 'Cinzel', serif;
+            font-size: 4rem;
+            font-weight: 700;
+            margin-bottom: 15px;
+            text-shadow: 0 5px 30px rgba(0,0,0,0.4),
+                         0 0 60px rgba(255, 255, 255, 0.5);
+            animation: timeGlow 3s ease-in-out infinite;
+            letter-spacing: 5px;
+        }
+
+        .result-date {
+            font-size: 1.4rem;
+            opacity: 0.98;
+            margin-bottom: 20px;
+            font-weight: 500;
+            text-shadow: 0 2px 15px rgba(0,0,0,0.3);
+        }
+
+        .time-diff {
+            display: inline-block;
+            background: rgba(255, 255, 255, 0.25);
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-size: 1rem;
+            margin-bottom: 25px;
+            backdrop-filter: blur(15px);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            font-weight: 600;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.2),
+                        inset 0 0 20px rgba(255, 255, 255, 0.2);
+        }
+
+        .day-indicator {
+            font-size: 4rem;
+            margin-bottom: 15px;
+            animation: floatSpin 4s ease-in-out infinite;
+            filter: drop-shadow(0 8px 20px rgba(0,0,0,0.3));
+        }
+
+        .copy-btn {
+            background: rgba(255, 255, 255, 0.25);
+            border: 3px solid rgba(255, 255, 255, 0.6);
+            color: white;
+            padding: 15px 40px;
+            border-radius: 30px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            font-weight: 700;
+            font-family: 'Quicksand', sans-serif;
+            backdrop-filter: blur(15px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.3),
+                        inset 0 0 20px rgba(255, 255, 255, 0.2);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .copy-btn::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.4);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+
+        .copy-btn:hover::before {
+            width: 300px;
+            height: 300px;
+        }
+
+        .copy-btn:hover {
+            background: rgba(255, 255, 255, 0.4);
+            transform: translateY(-5px) scale(1.05);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.4),
+                        inset 0 0 30px rgba(255, 255, 255, 0.3);
+            border-color: white;
+        }
+
+        .copy-btn:active {
+            transform: translateY(-2px) scale(1.02);
+        }
+
+        .copy-btn > * {
+            position: relative;
+            z-index: 1;
+        }
+
+        .recent-cities {
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 2px solid;
+            border-image: var(--aurora-gradient) 1;
+        }
+
+        .recent-cities-label {
+            font-size: 0.85rem;
+            opacity: 0.8;
+            margin-bottom: 12px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            font-weight: 600;
+        }
+
+        .recent-city-btn {
+            display: inline-block;
+            padding: 8px 18px;
+            margin: 5px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            border: 2px solid;
+            font-weight: 600;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .light-theme .recent-city-btn {
+            border-color: rgba(240, 147, 251, 0.4);
+            background: rgba(240, 147, 251, 0.1);
+            color: var(--text-light);
+        }
+
+        .dark-theme .recent-city-btn {
+            border-color: rgba(167, 139, 250, 0.4);
+            background: rgba(167, 139, 250, 0.1);
+            color: var(--text-dark);
+        }
+
+        .recent-city-btn:hover {
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: 0 6px 20px rgba(167, 139, 250, 0.4);
+        }
+
+        .light-theme .recent-city-btn:hover {
+            background: rgba(240, 147, 251, 0.25);
+            border-color: #f093fb;
+        }
+
+        .dark-theme .recent-city-btn:hover {
+            background: rgba(167, 139, 250, 0.25);
+            border-color: #a78bfa;
+        }
+
+        .notification {
+            position: fixed;
+            top: 30px;
+            right: 30px;
+            background: var(--divine-gradient);
+            color: white;
+            padding: 20px 30px;
+            border-radius: 20px;
+            box-shadow: 0 12px 40px rgba(142, 197, 252, 0.6),
+                        inset 0 0 30px rgba(255, 255, 255, 0.2);
+            transform: translateX(500px);
+            transition: transform 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            z-index: 1000;
+            font-weight: 600;
+            font-size: 1.05rem;
+            border: 2px solid rgba(255, 255, 255, 0.5);
+            backdrop-filter: blur(15px);
+        }
+
+        .notification.show {
+            transform: translateX(0);
+            animation: notificationPulse 0.6s ease;
+        }
+
+        /* Dropdown для поиска городов */
+        .city-dropdown {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            max-height: 300px;
+            overflow-y: auto;
+            border-radius: 15px;
+            margin-top: 5px;
+            z-index: 1000;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-10px);
+            transition: all 0.3s ease;
+        }
+
+        .city-dropdown.show {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        .light-theme .city-dropdown {
+            background: rgba(255, 255, 255, 0.98);
+            border: 2px solid rgba(240, 147, 251, 0.3);
+        }
+
+        .dark-theme .city-dropdown {
+            background: rgba(30, 30, 60, 0.98);
+            border: 2px solid rgba(167, 139, 250, 0.3);
+        }
+
+        .city-option {
+            padding: 12px 18px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 0.95rem;
+            border-bottom: 1px solid rgba(150, 150, 150, 0.1);
+        }
+
+        .city-option:last-child {
+            border-bottom: none;
+        }
+
+        .light-theme .city-option:hover,
+        .light-theme .city-option.highlighted {
+            background: rgba(240, 147, 251, 0.15);
+            transform: translateX(5px);
+        }
+
+        .dark-theme .city-option:hover,
+        .dark-theme .city-option.highlighted {
+            background: rgba(167, 139, 250, 0.15);
+            transform: translateX(5px);
+        }
+
+        .city-option-name {
+            font-weight: 600;
+            margin-bottom: 3px;
+        }
+
+        .city-option-country {
+            font-size: 0.85rem;
+            opacity: 0.7;
+        }
+
+        .city-option-timezone {
+            font-size: 0.8rem;
+            opacity: 0.6;
+            margin-top: 2px;
+        }
+
+        .no-results {
+            padding: 20px;
+            text-align: center;
+            opacity: 0.6;
+            font-style: italic;
+        }
+
+        /* Скрываем стандартный select */
+        #clientCity {
+            display: none !important;
+        }
+
+        /* Позиция для dropdown */
+        .form-group {
+            position: relative;
+        }
+
+        /* Анимации появления */
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(40px) scale(0.95);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        /* Магические эффекты */
+        @keyframes shimmerLight {
+            0%, 100% {
+                opacity: 0.8;
+            }
+            50% {
+                opacity: 1;
+            }
+        }
+
+        @keyframes shimmerDark {
+            0%, 100% {
+                opacity: 0.8;
+            }
+            50% {
+                opacity: 1;
+            }
+        }
+
+        @keyframes twinkle {
+            0%, 100% {
+                opacity: 0.3;
+            }
+            50% {
+                opacity: 0.8;
+            }
+        }
+
+        @keyframes float {
+            0% {
+                transform: translateY(0) translateX(0);
+            }
+            33% {
+                transform: translateY(-20px) translateX(10px);
+            }
+            66% {
+                transform: translateY(-10px) translateX(-10px);
+            }
+            100% {
+                transform: translateY(0) translateX(0);
+            }
+        }
+
+        @keyframes floatSpin {
+            0%, 100% {
+                transform: translateY(0) rotate(0deg);
+            }
+            25% {
+                transform: translateY(-15px) rotate(5deg);
+            }
+            50% {
+                transform: translateY(-5px) rotate(-5deg);
+            }
+            75% {
+                transform: translateY(-10px) rotate(3deg);
+            }
+        }
+
+        @keyframes glow {
+            0%, 100% {
+                filter: brightness(1) drop-shadow(0 0 10px rgba(167, 139, 250, 0.3));
+            }
+            50% {
+                filter: brightness(1.2) drop-shadow(0 0 30px rgba(240, 147, 251, 0.6));
+            }
+        }
+
+        @keyframes sparkle {
+            0%, 100% {
+                opacity: 0.5;
+                transform: scale(1);
+            }
+            50% {
+                opacity: 1;
+                transform: scale(1.2);
+            }
+        }
+
+        @keyframes timeGlow {
+            0%, 100% {
+                text-shadow: 0 5px 30px rgba(0,0,0,0.4),
+                             0 0 60px rgba(255, 255, 255, 0.5);
+            }
+            50% {
+                text-shadow: 0 5px 30px rgba(0,0,0,0.4),
+                             0 0 80px rgba(255, 255, 255, 0.8),
+                             0 0 100px rgba(240, 147, 251, 0.6);
+            }
+        }
+
+        @keyframes cardPulse {
+            0%, 100% {
+                box-shadow: 0 25px 80px rgba(167, 139, 250, 0.6),
+                            0 0 100px rgba(240, 147, 251, 0.3),
+                            inset 0 0 60px rgba(255, 255, 255, 0.1);
+            }
+            50% {
+                box-shadow: 0 30px 100px rgba(167, 139, 250, 0.8),
+                            0 0 150px rgba(240, 147, 251, 0.5),
+                            inset 0 0 80px rgba(255, 255, 255, 0.2);
+            }
+        }
+
+        @keyframes spiralPulse {
+            0% {
+                transform: rotate(0deg) scale(1);
+                opacity: 0.2;
+            }
+            50% {
+                transform: rotate(180deg) scale(1.1);
+                opacity: 0.3;
+            }
+            100% {
+                transform: rotate(360deg) scale(1);
+                opacity: 0.2;
+            }
+        }
+
+        @keyframes floatBubbles {
+            0%, 100% {
+                transform: translateY(0) scale(1);
+            }
+            50% {
+                transform: translateY(-20px) scale(1.05);
+            }
+        }
+
+        @keyframes borderGlow {
+            0%, 100% {
+                opacity: 0;
+            }
+            50% {
+                opacity: 0.6;
+            }
+        }
+
+        @keyframes rotateGlow {
+            0% {
+                transform: rotate(0deg);
+            }
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        @keyframes notificationPulse {
+            0% {
+                transform: translateX(0) scale(1);
+            }
+            50% {
+                transform: translateX(0) scale(1.05);
+            }
+            100% {
+                transform: translateX(0) scale(1);
+            }
+        }
+
+        /* Планшеты */
+        @media (max-width: 768px) {
+            .container {
+                max-width: 100%;
+            }
+
+            body {
+                padding: 15px;
+            }
+
+            .header h1 {
+                font-size: 2rem;
+                letter-spacing: 1.5px;
+            }
+
+            .header p {
+                font-size: 0.8rem;
+                letter-spacing: 2.5px;
+            }
+
+            .card {
+                padding: 30px;
+            }
+
+            .result-card {
+                padding: 45px 30px;
+            }
+
+            .theme-toggle {
+                width: 65px;
+                height: 65px;
+                bottom: 25px;
+                right: 25px;
+            }
+        }
+
+        /* Мобильные телефоны */
+        @media (max-width: 600px) {
+            body {
+                padding: 10px;
+                padding-bottom: 20px;
+            }
+
+            .header {
+                margin-bottom: 25px;
+            }
+
+            .header h1 {
+                font-size: 1.6rem;
+                letter-spacing: 1px;
+                margin-bottom: 10px;
+            }
+
+            .header p {
+                font-size: 0.7rem;
+                letter-spacing: 2px;
+            }
+
+            .header p::before,
+            .header p::after {
+                margin: 0 8px;
+            }
+
+            .card {
+                padding: 20px;
+                border-radius: 20px;
+                margin-bottom: 20px;
+            }
+
+            .form-group {
+                margin-bottom: 18px;
+            }
+
+            .form-group label {
+                font-size: 0.75rem;
+                margin-bottom: 10px;
+                letter-spacing: 1.5px;
+            }
+
+            input, select {
+                padding: 14px 16px;
+                font-size: 1rem;
+                border-radius: 12px;
+            }
+
+            .result-card {
+                padding: 35px 20px;
+                border-radius: 25px;
+                margin-bottom: 80px;
+            }
+
+            .result-label {
+                font-size: 0.8rem;
+                letter-spacing: 3px;
+                margin-bottom: 12px;
+            }
+
+            .result-label::before,
+            .result-label::after {
+                margin: 0 8px;
+            }
+
+            .result-time {
+                font-size: 2.8rem;
+                letter-spacing: 3px;
+                margin-bottom: 12px;
+            }
+
+            .result-date {
+                font-size: 1.1rem;
+                margin-bottom: 15px;
+            }
+
+            .time-diff {
+                font-size: 0.9rem;
+                padding: 8px 16px;
+                margin-bottom: 20px;
+            }
+
+            .day-indicator {
+                font-size: 3.5rem;
+                margin-bottom: 12px;
+            }
+
+            .copy-btn {
+                padding: 14px 32px;
+                font-size: 1rem;
+                border-radius: 25px;
+                width: 100%;
+                max-width: 280px;
+            }
+
+            .recent-cities {
+                margin-top: 15px;
+                padding-top: 15px;
+            }
+
+            .recent-cities-label {
+                font-size: 0.75rem;
+                margin-bottom: 10px;
+            }
+
+            .recent-city-btn {
+                padding: 8px 16px;
+                margin: 4px;
+                font-size: 0.85rem;
+                border-radius: 18px;
+            }
+
+            .theme-toggle {
+                width: 60px;
+                height: 60px;
+                font-size: 1.8rem;
+                bottom: 20px;
+                right: 20px;
+            }
+
+            .notification {
+                top: 15px;
+                right: 15px;
+                left: 15px;
+                padding: 15px 20px;
+                font-size: 0.9rem;
+                border-radius: 15px;
+            }
+        }
+
+        /* Очень маленькие экраны */
+        @media (max-width: 360px) {
+            .header h1 {
+                font-size: 1.4rem;
+            }
+
+            .header p {
+                font-size: 0.65rem;
+                letter-spacing: 1.5px;
+            }
+
+            .result-time {
+                font-size: 2.4rem;
+                letter-spacing: 2px;
+            }
+
+            .result-date {
+                font-size: 1rem;
+            }
+
+            .card {
+                padding: 18px;
+            }
+
+            .result-card {
+                padding: 30px 18px;
+            }
+
+            .copy-btn {
+                padding: 12px 24px;
+                font-size: 0.95rem;
+            }
+
+            .theme-toggle {
+                width: 55px;
+                height: 55px;
+                font-size: 1.6rem;
+                bottom: 15px;
+                right: 15px;
+            }
+        }
+
+        /* Landscape ориентация для мобильных */
+        @media (max-width: 900px) and (max-height: 500px) {
+            body {
+                padding: 10px;
+            }
+
+            .header {
+                margin-bottom: 15px;
+            }
+
+            .header h1 {
+                font-size: 1.5rem;
+                margin-bottom: 5px;
+            }
+
+            .header p {
+                font-size: 0.7rem;
+            }
+
+            .card {
+                padding: 20px;
+                margin-bottom: 15px;
+            }
+
+            .result-card {
+                padding: 25px 20px;
+                margin-bottom: 80px;
+            }
+
+            .form-group {
+                margin-bottom: 12px;
+            }
+
+            .day-indicator {
+                font-size: 2.5rem;
+                margin-bottom: 8px;
+            }
+
+            .result-time {
+                font-size: 2.2rem;
+                margin-bottom: 8px;
+            }
+
+            .result-date {
+                font-size: 1rem;
+                margin-bottom: 10px;
+            }
+
+            .time-diff {
+                margin-bottom: 15px;
+            }
+
+            .theme-toggle {
+                width: 50px;
+                height: 50px;
+                font-size: 1.5rem;
+                bottom: 15px;
+                right: 15px;
+            }
+        }
+
+        /* Улучшения для touch устройств */
+        @media (hover: none) and (pointer: coarse) {
+            input, select, button {
+                /* Увеличиваем область клика для пальцев */
+                min-height: 44px;
+            }
+
+            .theme-toggle {
+                /* Комфортный размер для нажатия */
+                width: 60px;
+                height: 60px;
+            }
+
+            .recent-city-btn {
+                min-height: 40px;
+                padding: 10px 18px;
+            }
+
+            /* Убираем hover эффекты на touch устройствах */
+            .card:hover::before {
+                opacity: 0;
+            }
+
+            /* Активные состояния вместо hover */
+            input:active, select:active {
+                transform: translateY(-2px) scale(1.01);
+            }
+
+            .copy-btn:active {
+                transform: translateY(-3px) scale(1.03);
+            }
+
+            .recent-city-btn:active {
+                transform: translateY(-2px) scale(1.03);
+            }
+        }
+    </style>
+</head>
+<body class="light-theme">
+    <div class="container">
+        <div class="header">
+            <h1>✨ Конвертер Времени ✨</h1>
+            <p>Гармония Встреч Сквозь Пространство</p>
+        </div>
+
+        <div class="card">
+            <div class="form-group">
+                <label for="psychologistDate">Ваша дата</label>
+                <input type="date" id="psychologistDate" required>
+            </div>
+
+            <div class="form-group">
+                <label for="psychologistTime">Ваше время (Камчатка)</label>
+                <input type="time" id="psychologistTime" required>
+            </div>
+
+            <div class="form-group">
+                <label for="citySearch">Город клиента</label>
+                <input
+                    type="text"
+                    id="citySearch"
+                    placeholder="Начните вводить название города..."
+                    autocomplete="off"
+                >
+                <select id="clientCity" required style="display: none;">
+                    <option value="">Выберите город...</option>
+                </select>
+                <div id="cityDropdown" class="city-dropdown"></div>
+            </div>
+
+            <div class="recent-cities" id="recentCitiesContainer" style="display: none;">
+                <div class="recent-cities-label">Недавние города:</div>
+                <div id="recentCitiesList"></div>
+            </div>
+        </div>
+
+        <div class="result-card" id="resultCard">
+            <div class="day-indicator" id="dayIndicator">🌅</div>
+            <div class="result-label">Время клиента</div>
+            <div class="result-time" id="resultTime">--:--</div>
+            <div class="result-date" id="resultDate">-- --- ----</div>
+            <div class="time-diff" id="timeDiff">Разница: --ч</div>
+            <button class="copy-btn" id="copyBtn">📋 Копировать время</button>
+        </div>
+    </div>
+
+    <div class="notification" id="notification">Время скопировано!</div>
+
+    <button class="theme-toggle" id="themeToggle" aria-label="Переключить тему">🌙</button>
+
+    <script>
+        const { DateTime } = luxon;
+
+        // Элементы DOM
+        const psychologistDateInput = document.getElementById('psychologistDate');
+        const psychologistTimeInput = document.getElementById('psychologistTime');
+        const clientCitySelect = document.getElementById('clientCity');
+        const citySearchInput = document.getElementById('citySearch');
+        const cityDropdown = document.getElementById('cityDropdown');
+        const resultTime = document.getElementById('resultTime');
+        const resultDate = document.getElementById('resultDate');
+        const timeDiff = document.getElementById('timeDiff');
+        const dayIndicator = document.getElementById('dayIndicator');
+        const copyBtn = document.getElementById('copyBtn');
+        const notification = document.getElementById('notification');
+        const themeToggle = document.getElementById('themeToggle');
+        const recentCitiesContainer = document.getElementById('recentCitiesContainer');
+        const recentCitiesList = document.getElementById('recentCitiesList');
+
+        // Полный список городов СНГ с часовыми поясами
+        const cities = [
+            // Россия - Европейская часть (UTC+3)
+            { name: 'Москва', country: 'Россия', timezone: 'Europe/Moscow', utc: 'UTC+3' },
+            { name: 'Санкт-Петербург', country: 'Россия', timezone: 'Europe/Moscow', utc: 'UTC+3' },
+            { name: 'Казань', country: 'Россия', timezone: 'Europe/Moscow', utc: 'UTC+3' },
+            { name: 'Нижний Новгород', country: 'Россия', timezone: 'Europe/Moscow', utc: 'UTC+3' },
+            { name: 'Ростов-на-Дону', country: 'Россия', timezone: 'Europe/Moscow', utc: 'UTC+3' },
+            { name: 'Воронеж', country: 'Россия', timezone: 'Europe/Moscow', utc: 'UTC+3' },
+            { name: 'Краснодар', country: 'Россия', timezone: 'Europe/Moscow', utc: 'UTC+3' },
+            { name: 'Сочи', country: 'Россия', timezone: 'Europe/Moscow', utc: 'UTC+3' },
+            { name: 'Тула', country: 'Россия', timezone: 'Europe/Moscow', utc: 'UTC+3' },
+            { name: 'Рязань', country: 'Россия', timezone: 'Europe/Moscow', utc: 'UTC+3' },
+            { name: 'Ярославль', country: 'Россия', timezone: 'Europe/Moscow', utc: 'UTC+3' },
+            { name: 'Брянск', country: 'Россия', timezone: 'Europe/Moscow', utc: 'UTC+3' },
+            { name: 'Курск', country: 'Россия', timezone: 'Europe/Moscow', utc: 'UTC+3' },
+            { name: 'Смоленск', country: 'Россия', timezone: 'Europe/Moscow', utc: 'UTC+3' },
+            { name: 'Мурманск', country: 'Россия', timezone: 'Europe/Moscow', utc: 'UTC+3' },
+            { name: 'Архангельск', country: 'Россия', timezone: 'Europe/Moscow', utc: 'UTC+3' },
+            { name: 'Вологда', country: 'Россия', timezone: 'Europe/Moscow', utc: 'UTC+3' },
+            { name: 'Петрозаводск', country: 'Россия', timezone: 'Europe/Moscow', utc: 'UTC+3' },
+            { name: 'Сыктывкар', country: 'Россия', timezone: 'Europe/Moscow', utc: 'UTC+3' },
+
+            // Калининград (UTC+2)
+            { name: 'Калининград', country: 'Россия', timezone: 'Europe/Kaliningrad', utc: 'UTC+2' },
+
+            // Волгоград (UTC+3)
+            { name: 'Волгоград', country: 'Россия', timezone: 'Europe/Volgograd', utc: 'UTC+3' },
+            { name: 'Астрахань', country: 'Россия', timezone: 'Europe/Astrakhan', utc: 'UTC+4' },
+
+            // Самара (UTC+4)
+            { name: 'Самара', country: 'Россия', timezone: 'Europe/Samara', utc: 'UTC+4' },
+            { name: 'Тольятти', country: 'Россия', timezone: 'Europe/Samara', utc: 'UTC+4' },
+            { name: 'Ижевск', country: 'Россия', timezone: 'Europe/Samara', utc: 'UTC+4' },
+            { name: 'Ульяновск', country: 'Россия', timezone: 'Europe/Samara', utc: 'UTC+4' },
+
+            // Урал (UTC+5)
+            { name: 'Екатеринбург', country: 'Россия', timezone: 'Asia/Yekaterinburg', utc: 'UTC+5' },
+            { name: 'Челябинск', country: 'Россия', timezone: 'Asia/Yekaterinburg', utc: 'UTC+5' },
+            { name: 'Уфа', country: 'Россия', timezone: 'Asia/Yekaterinburg', utc: 'UTC+5' },
+            { name: 'Пермь', country: 'Россия', timezone: 'Asia/Yekaterinburg', utc: 'UTC+5' },
+            { name: 'Оренбург', country: 'Россия', timezone: 'Asia/Yekaterinburg', utc: 'UTC+5' },
+            { name: 'Магнитогорск', country: 'Россия', timezone: 'Asia/Yekaterinburg', utc: 'UTC+5' },
+            { name: 'Курган', country: 'Россия', timezone: 'Asia/Yekaterinburg', utc: 'UTC+5' },
+
+            // Омск (UTC+6)
+            { name: 'Омск', country: 'Россия', timezone: 'Asia/Omsk', utc: 'UTC+6' },
+
+            // Красноярск (UTC+7)
+            { name: 'Красноярск', country: 'Россия', timezone: 'Asia/Krasnoyarsk', utc: 'UTC+7' },
+            { name: 'Новосибирск', country: 'Россия', timezone: 'Asia/Novosibirsk', utc: 'UTC+7' },
+            { name: 'Томск', country: 'Россия', timezone: 'Asia/Tomsk', utc: 'UTC+7' },
+            { name: 'Кемерово', country: 'Россия', timezone: 'Asia/Novokuznetsk', utc: 'UTC+7' },
+            { name: 'Новокузнецк', country: 'Россия', timezone: 'Asia/Novokuznetsk', utc: 'UTC+7' },
+            { name: 'Барнаул', country: 'Россия', timezone: 'Asia/Barnaul', utc: 'UTC+7' },
+
+            // Иркутск (UTC+8)
+            { name: 'Иркутск', country: 'Россия', timezone: 'Asia/Irkutsk', utc: 'UTC+8' },
+            { name: 'Улан-Удэ', country: 'Россия', timezone: 'Asia/Irkutsk', utc: 'UTC+8' },
+            { name: 'Чита', country: 'Россия', timezone: 'Asia/Chita', utc: 'UTC+9' },
+
+            // Якутск (UTC+9)
+            { name: 'Якутск', country: 'Россия', timezone: 'Asia/Yakutsk', utc: 'UTC+9' },
+            { name: 'Благовещенск', country: 'Россия', timezone: 'Asia/Yakutsk', utc: 'UTC+9' },
+
+            // Владивосток (UTC+10)
+            { name: 'Владивосток', country: 'Россия', timezone: 'Asia/Vladivostok', utc: 'UTC+10' },
+            { name: 'Хабаровск', country: 'Россия', timezone: 'Asia/Vladivostok', utc: 'UTC+10' },
+
+            // Магадан (UTC+11)
+            { name: 'Магадан', country: 'Россия', timezone: 'Asia/Magadan', utc: 'UTC+11' },
+            { name: 'Южно-Сахалинск', country: 'Россия', timezone: 'Asia/Sakhalin', utc: 'UTC+11' },
+
+            // Камчатка (UTC+12)
+            { name: 'Петропавловск-Камчатский', country: 'Россия', timezone: 'Asia/Kamchatka', utc: 'UTC+12' },
+
+            // Беларусь (UTC+3)
+            { name: 'Минск', country: 'Беларусь', timezone: 'Europe/Minsk', utc: 'UTC+3' },
+            { name: 'Гомель', country: 'Беларусь', timezone: 'Europe/Minsk', utc: 'UTC+3' },
+            { name: 'Могилёв', country: 'Беларусь', timezone: 'Europe/Minsk', utc: 'UTC+3' },
+            { name: 'Витебск', country: 'Беларусь', timezone: 'Europe/Minsk', utc: 'UTC+3' },
+            { name: 'Гродно', country: 'Беларусь', timezone: 'Europe/Minsk', utc: 'UTC+3' },
+            { name: 'Брест', country: 'Беларусь', timezone: 'Europe/Minsk', utc: 'UTC+3' },
+
+            // Казахстан
+            { name: 'Алматы', country: 'Казахстан', timezone: 'Asia/Almaty', utc: 'UTC+6' },
+            { name: 'Астана', country: 'Казахстан', timezone: 'Asia/Almaty', utc: 'UTC+6' },
+            { name: 'Шымкент', country: 'Казахстан', timezone: 'Asia/Almaty', utc: 'UTC+6' },
+            { name: 'Караганда', country: 'Казахстан', timezone: 'Asia/Almaty', utc: 'UTC+6' },
+            { name: 'Актобе', country: 'Казахстан', timezone: 'Asia/Aqtobe', utc: 'UTC+5' },
+            { name: 'Атырау', country: 'Казахстан', timezone: 'Asia/Atyrau', utc: 'UTC+5' },
+            { name: 'Актау', country: 'Казахстан', timezone: 'Asia/Aqtau', utc: 'UTC+5' },
+            { name: 'Костанай', country: 'Казахстан', timezone: 'Asia/Qostanay', utc: 'UTC+6' },
+            { name: 'Павлодар', country: 'Казахстан', timezone: 'Asia/Almaty', utc: 'UTC+6' },
+            { name: 'Семей', country: 'Казахстан', timezone: 'Asia/Almaty', utc: 'UTC+6' },
+
+            // Украина (UTC+2)
+            { name: 'Киев', country: 'Украина', timezone: 'Europe/Kiev', utc: 'UTC+2' },
+            { name: 'Харьков', country: 'Украина', timezone: 'Europe/Kiev', utc: 'UTC+2' },
+            { name: 'Одесса', country: 'Украина', timezone: 'Europe/Kiev', utc: 'UTC+2' },
+            { name: 'Днепр', country: 'Украина', timezone: 'Europe/Kiev', utc: 'UTC+2' },
+            { name: 'Львов', country: 'Украина', timezone: 'Europe/Kiev', utc: 'UTC+2' },
+            { name: 'Запорожье', country: 'Украина', timezone: 'Europe/Zaporozhye', utc: 'UTC+2' },
+
+            // Узбекистан (UTC+5)
+            { name: 'Ташкент', country: 'Узбекистан', timezone: 'Asia/Tashkent', utc: 'UTC+5' },
+            { name: 'Самарканд', country: 'Узбекистан', timezone: 'Asia/Samarkand', utc: 'UTC+5' },
+            { name: 'Бухара', country: 'Узбекистан', timezone: 'Asia/Tashkent', utc: 'UTC+5' },
+            { name: 'Наманган', country: 'Узбекистан', timezone: 'Asia/Tashkent', utc: 'UTC+5' },
+
+            // Азербайджан (UTC+4)
+            { name: 'Баку', country: 'Азербайджан', timezone: 'Asia/Baku', utc: 'UTC+4' },
+            { name: 'Гянджа', country: 'Азербайджан', timezone: 'Asia/Baku', utc: 'UTC+4' },
+
+            // Грузия (UTC+4)
+            { name: 'Тбилиси', country: 'Грузия', timezone: 'Asia/Tbilisi', utc: 'UTC+4' },
+            { name: 'Батуми', country: 'Грузия', timezone: 'Asia/Tbilisi', utc: 'UTC+4' },
+
+            // Армения (UTC+4)
+            { name: 'Ереван', country: 'Армения', timezone: 'Asia/Yerevan', utc: 'UTC+4' },
+
+            // Кыргызстан (UTC+6)
+            { name: 'Бишкек', country: 'Кыргызстан', timezone: 'Asia/Bishkek', utc: 'UTC+6' },
+            { name: 'Ош', country: 'Кыргызстан', timezone: 'Asia/Bishkek', utc: 'UTC+6' },
+
+            // Таджикистан (UTC+5)
+            { name: 'Душанбе', country: 'Таджикистан', timezone: 'Asia/Dushanbe', utc: 'UTC+5' },
+
+            // Туркменистан (UTC+5)
+            { name: 'Ашхабад', country: 'Туркменистан', timezone: 'Asia/Ashgabat', utc: 'UTC+5' },
+
+            // Молдова (UTC+2)
+            { name: 'Кишинёв', country: 'Молдова', timezone: 'Europe/Chisinau', utc: 'UTC+2' },
+        ];
+
+        let selectedCity = null;
+        let highlightedIndex = -1;
+        let filteredCities = [];
+
+        // Поиск городов
+        function searchCities(query) {
+            if (!query || query.length < 1) {
+                return [];
+            }
+
+            query = query.toLowerCase().trim();
+
+            return cities.filter(city => {
+                return city.name.toLowerCase().includes(query) ||
+                       city.country.toLowerCase().includes(query);
+            }).slice(0, 10); // Показываем макс 10 результатов
+        }
+
+        // Отображение dropdown с результатами
+        function showDropdown(results) {
+            console.log('🔍 showDropdown called with results:', results.length);
+
+            if (results.length === 0) {
+                cityDropdown.innerHTML = '<div class="no-results">Город не найден</div>';
+                cityDropdown.classList.add('show');
+                return;
+            }
+
+            filteredCities = results;
+            highlightedIndex = -1;
+
+            cityDropdown.innerHTML = results.map((city, index) => `
+                <div class="city-option" data-index="${index}">
+                    <div class="city-option-name">${city.name}</div>
+                    <div class="city-option-country">${city.country}</div>
+                    <div class="city-option-timezone">${city.utc}</div>
+                </div>
+            `).join('');
+
+            cityDropdown.classList.add('show');
+            console.log('✅ Dropdown shown');
+
+            // Добавляем обработчики клика
+            const options = cityDropdown.querySelectorAll('.city-option');
+            console.log('✅ Found city options:', options.length);
+
+            options.forEach((option, index) => {
+                option.addEventListener('click', (e) => {
+                    e.stopPropagation(); // Предотвращаем всплытие события
+                    console.log('🖱️ City option clicked:', results[index].name);
+                    selectCity(results[index]);
+                });
+            });
+
+            console.log('✅ Event listeners attached to', options.length, 'options');
+        }
+
+        // Скрыть dropdown
+        function hideDropdown() {
+            cityDropdown.classList.remove('show');
+            highlightedIndex = -1;
+        }
+
+        // Выбор города
+        function selectCity(city) {
+            console.log('selectCity called with:', city);
+            selectedCity = city;
+            citySearchInput.value = `${city.name}, ${city.country}`;
+
+            // Очищаем select и добавляем новую опцию с выбранным городом
+            clientCitySelect.innerHTML = '';
+            const option = document.createElement('option');
+            option.value = city.timezone;
+            option.textContent = `${city.name}, ${city.country}`;
+            option.selected = true;
+            clientCitySelect.appendChild(option);
+
+            console.log('clientCitySelect.value set to:', clientCitySelect.value);
+            hideDropdown();
+            console.log('About to call convertTime()');
+            convertTime();
+            console.log('convertTime() completed');
+        }
+
+        // Подсветка элемента при навигации клавиатурой
+        function highlightOption(index) {
+            const options = cityDropdown.querySelectorAll('.city-option');
+            options.forEach(opt => opt.classList.remove('highlighted'));
+
+            if (index >= 0 && index < options.length) {
+                options[index].classList.add('highlighted');
+                options[index].scrollIntoView({ block: 'nearest' });
+            }
+        }
+
+        // События для поиска
+        citySearchInput.addEventListener('input', (e) => {
+            const query = e.target.value;
+
+            if (query.length === 0) {
+                hideDropdown();
+                selectedCity = null;
+                clientCitySelect.value = '';
+                return;
+            }
+
+            const results = searchCities(query);
+            showDropdown(results);
+        });
+
+        citySearchInput.addEventListener('focus', (e) => {
+            if (e.target.value.length > 0 && filteredCities.length > 0) {
+                cityDropdown.classList.add('show');
+            }
+        });
+
+        // Навигация клавиатурой
+        citySearchInput.addEventListener('keydown', (e) => {
+            if (!cityDropdown.classList.contains('show')) return;
+
+            switch(e.key) {
+                case 'ArrowDown':
+                    e.preventDefault();
+                    highlightedIndex = Math.min(highlightedIndex + 1, filteredCities.length - 1);
+                    highlightOption(highlightedIndex);
+                    break;
+
+                case 'ArrowUp':
+                    e.preventDefault();
+                    highlightedIndex = Math.max(highlightedIndex - 1, 0);
+                    highlightOption(highlightedIndex);
+                    break;
+
+                case 'Enter':
+                    e.preventDefault();
+                    if (highlightedIndex >= 0 && filteredCities[highlightedIndex]) {
+                        selectCity(filteredCities[highlightedIndex]);
+                    }
+                    break;
+
+                case 'Escape':
+                    e.preventDefault();
+                    hideDropdown();
+                    break;
+            }
+        });
+
+        // Закрытие dropdown при клике вне его
+        document.addEventListener('click', (e) => {
+            const clickedInside = citySearchInput.contains(e.target) || cityDropdown.contains(e.target);
+            console.log('📍 Document click - target:', e.target.className, 'clickedInside:', clickedInside);
+
+            if (!clickedInside) {
+                console.log('⚠️ Closing dropdown (clicked outside)');
+                hideDropdown();
+            }
+        });
+
+        // Автоматическое определение темы по времени Камчатки
+        function getAutoTheme() {
+            const now = DateTime.now().setZone('Asia/Kamchatka');
+            const hour = now.hour;
+
+            // Если время с 20:00 до 07:59 - темная тема (ночь)
+            // Если время с 08:00 до 19:59 - светлая тема (день)
+            if (hour >= 20 || hour < 8) {
+                return 'dark';
+            } else {
+                return 'light';
+            }
+        }
+
+        // Инициализация
+        function init() {
+            // Установка текущей даты и времени
+            const now = DateTime.now().setZone('Asia/Kamchatka');
+            psychologistDateInput.value = now.toFormat('yyyy-MM-dd');
+            psychologistTimeInput.value = now.toFormat('HH:mm');
+
+            // Автоматическое определение темы или загрузка сохраненной
+            // Проверяем, была ли тема вручную изменена пользователем
+            const manualThemeChange = localStorage.getItem('manualThemeChange');
+            let theme;
+
+            if (manualThemeChange === 'true') {
+                // Если пользователь менял тему вручную - используем сохраненную
+                theme = localStorage.getItem('theme') || getAutoTheme();
+            } else {
+                // Иначе - автоматически по времени
+                theme = getAutoTheme();
+                localStorage.setItem('theme', theme);
+            }
+
+            document.body.className = theme + '-theme';
+            updateThemeIcon(theme);
+
+            // Загрузка недавних городов
+            loadRecentCities();
+
+            // Первоначальный расчет не нужен - город ещё не выбран
+            // convertTime();
+        }
+
+        // Конвертация времени
+        function convertTime() {
+            try {
+                console.log('=== convertTime START ===');
+                const date = psychologistDateInput.value;
+                const time = psychologistTimeInput.value;
+                const clientTimezone = clientCitySelect.value;
+
+                console.log('convertTime called:', { date, time, clientTimezone, selectedCity });
+
+                if (!date || !time || !clientTimezone) {
+                    console.log('❌ Missing required fields:', { date, time, clientTimezone });
+                    return;
+                }
+
+                console.log('✅ All fields present, creating DateTime...');
+
+                // Создание даты/времени психолога в часовом поясе Камчатки
+                const psychologistDateTime = DateTime.fromISO(`${date}T${time}`, {
+                    zone: 'Asia/Kamchatka'
+                });
+                console.log('✅ psychologistDateTime created:', psychologistDateTime.toISO());
+
+                // Конвертация в часовой пояс клиента
+                const clientDateTime = psychologistDateTime.setZone(clientTimezone);
+                console.log('✅ clientDateTime created:', clientDateTime.toISO());
+
+                // Отображение результата
+                const timeFormatted = clientDateTime.toFormat('HH:mm');
+                const dateFormatted = clientDateTime.toFormat('dd MMMM yyyy, cccc', { locale: 'ru' });
+
+                console.log('✅ Formatted time:', timeFormatted);
+                console.log('✅ Formatted date:', dateFormatted);
+
+                resultTime.textContent = timeFormatted;
+                resultDate.textContent = dateFormatted;
+
+                console.log('✅ DOM updated - resultTime:', resultTime.textContent);
+                console.log('✅ DOM updated - resultDate:', resultDate.textContent);
+
+                // Расчет разницы во времени
+                const diffHours = Math.round((clientDateTime.offset - psychologistDateTime.offset) / 60);
+                const diffSign = diffHours >= 0 ? '+' : '';
+                const diffText = `Разница: ${diffSign}${diffHours}ч`;
+                timeDiff.textContent = diffText;
+                console.log('✅ Time diff:', diffText);
+
+                // Определение иконки дня/ночи
+                const hour = clientDateTime.hour;
+                let icon;
+                if (hour >= 5 && hour < 12) {
+                    icon = '🌅'; // Утро
+                } else if (hour >= 12 && hour < 18) {
+                    icon = '☀️'; // День
+                } else if (hour >= 18 && hour < 22) {
+                    icon = '🌆'; // Вечер
+                } else {
+                    icon = '🌙'; // Ночь
+                }
+                dayIndicator.textContent = icon;
+                console.log('✅ Day indicator:', icon, 'for hour:', hour);
+
+                // Сохранение города в недавние
+                if (clientTimezone && selectedCity) {
+                    console.log('✅ Saving recent city:', selectedCity);
+                    saveRecentCity(selectedCity);
+                } else {
+                    console.log('⚠️ NOT saving recent city. clientTimezone:', clientTimezone, 'selectedCity:', selectedCity);
+                }
+
+                console.log('=== convertTime FINISHED SUCCESSFULLY ===');
+                console.log('FINAL RESULT - Time:', resultTime.textContent, 'Date:', resultDate.textContent);
+            } catch (error) {
+                console.error('❌❌❌ ERROR in convertTime:', error);
+                console.error('Error stack:', error.stack);
+            }
+        }
+
+        // Копирование времени
+        function copyTime() {
+            const date = resultDate.textContent;
+            const time = resultTime.textContent;
+            const text = `${date} в ${time}`;
+
+            navigator.clipboard.writeText(text).then(() => {
+                showNotification('Время скопировано!');
+            }).catch(err => {
+                console.error('Ошибка копирования:', err);
+                showNotification('Ошибка копирования');
+            });
+        }
+
+        // Показ уведомления
+        function showNotification(message) {
+            notification.textContent = message;
+            notification.classList.add('show');
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 2000);
+        }
+
+        // Переключение темы
+        function toggleTheme() {
+            const currentTheme = document.body.classList.contains('light-theme') ? 'light' : 'dark';
+            const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+
+            document.body.className = newTheme + '-theme';
+            localStorage.setItem('theme', newTheme);
+            // Отмечаем, что пользователь вручную изменил тему
+            localStorage.setItem('manualThemeChange', 'true');
+            updateThemeIcon(newTheme);
+        }
+
+        function updateThemeIcon(theme) {
+            themeToggle.textContent = theme === 'light' ? '🌙' : '☀️';
+        }
+
+        // Управление недавними городами
+        function saveRecentCity(city) {
+            console.log('saveRecentCity called with:', city);
+            let recentCities = JSON.parse(localStorage.getItem('recentCities') || '[]');
+            console.log('Current recent cities:', recentCities);
+
+            // Удаляем дубликат, если есть
+            recentCities = recentCities.filter(c => c.timezone !== city.timezone);
+
+            // Добавляем в начало
+            recentCities.unshift({
+                name: city.name,
+                country: city.country,
+                timezone: city.timezone,
+                utc: city.utc
+            });
+
+            // Оставляем только 5 последних
+            recentCities = recentCities.slice(0, 5);
+
+            console.log('Saving to localStorage:', recentCities);
+            localStorage.setItem('recentCities', JSON.stringify(recentCities));
+            loadRecentCities();
+            console.log('saveRecentCity completed');
+        }
+
+        function loadRecentCities() {
+            let recentCities = JSON.parse(localStorage.getItem('recentCities') || '[]');
+
+            // Миграция: удаляем города без поля utc (старые данные)
+            const originalLength = recentCities.length;
+            recentCities = recentCities.filter(city => city.utc);
+            if (recentCities.length !== originalLength) {
+                console.log('Cleaned old recent cities without utc field');
+                localStorage.setItem('recentCities', JSON.stringify(recentCities));
+            }
+
+            if (recentCities.length === 0) {
+                recentCitiesContainer.style.display = 'none';
+                return;
+            }
+
+            recentCitiesContainer.style.display = 'block';
+            recentCitiesList.innerHTML = '';
+
+            recentCities.forEach(city => {
+                const btn = document.createElement('span');
+                btn.className = 'recent-city-btn';
+                btn.textContent = city.name;
+                btn.onclick = () => selectCity(city);
+                recentCitiesList.appendChild(btn);
+            });
+        }
+
+        // События
+        psychologistDateInput.addEventListener('change', convertTime);
+        psychologistTimeInput.addEventListener('change', convertTime);
+        copyBtn.addEventListener('click', copyTime);
+        themeToggle.addEventListener('click', toggleTheme);
+
+        // Инициализация приложения
+        init();
+    </script>
+</body>
+</html>
